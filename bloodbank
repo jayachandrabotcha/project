@@ -1,3 +1,90 @@
+
+### DONOR TABLE ###
+
+create table donor
+(
+  did integer primary key not null,
+  dname varchar(20) not null,
+  bloodgrp varchar(10) not null,
+  dphno varchar(20) not null,
+  dage integer not null,
+  count integer default 1
+);
+
+###LOGIN TABLE FOR PASSWORDS ###
+
+create table login
+(
+ldid integer not null,
+password varchar(20) not null
+);
+
+ alter table login 
+add  foreign key (ldid) references donor(did);.
+
+### BLOOD TABLE TO STORE BOODTYPE AND QUANTITY OF BLOODTYPE ###
+
+ create table blood
+(
+  bldgrp varchar(5) not null,
+  quant integer not null);
+
+### RECEIVER TABLE ###
+create table receiver
+(
+  rid integer primary key not null auto_increment,
+  rname varchar(20) not null,
+  bloodgrp varchar(20) not null,
+  rphno varchar(20) not null,
+  rage integer not null,
+  rquant integer not null
+);
+
+### TRIGGER TO CHECK AGE LIMIT ###
+
+create trigger checkage before insert
+on donor
+for each row
+begin
+if new.dage<18 and new.dage>60
+then signal sqlstate '45000' set message_text='not allowed to donate';
+end if ;
+end
+
+create trigger a before insert 
+on donor 
+for each row
+begin
+update blood set quant=quant+300
+where bldgrp=new.bloodgrp;
+end
+
+### BILL ###
+
+create function bill(count integer)
+returns integer deterministic
+begin 
+declare amount integer;
+set amount=count*100;
+return amount;
+end//
+
+
+### TRIGER: WHENEVER RECEIVER RECEIVES BLOOD ,THAT AMOUNT WILL BE DEDUCTED FROM BLOOD TABLE
+
+create trigger rec before insert 
+on receiver 
+for each row
+begin
+update blood set quant=quant-new.rquant
+where bldgrp=new.bloodgrp;
+end
+
+
+select password from login where ldid=10
+
+
+//for sql syntax
 sql="insert into blood (bldgrp,quant) values(%s,%s)"
 sql_receiver="insert into receiver(rname,bloodgrp,rphno,rage,rquant) values(%s,%s,%s,%s,%s)"
 sql_reg="insert into donor (did,dname,bloodgrp,dphno,dage) values(%s,%s,%s,%s,%s)"
