@@ -1,0 +1,80 @@
+sql="insert into blood (bldgrp,quant) values(%s,%s)"
+sql_receiver="insert into receiver(rname,bloodgrp,rphno,rage,rquant) values(%s,%s,%s,%s,%s)"
+sql_reg="insert into donor (did,dname,bloodgrp,dphno,dage) values(%s,%s,%s,%s,%s)"
+sql_blood="insert into blood (bldgrp,quant) values(%s,%s)"
+sql_log="insert into login(ldid,password) values(%s,%s)"
+
+####CODE FOR INSERTING VALUES IN TO DONOR
+
+def insert_don():
+    cur.execute(sql_reg,(id.get(),name.get(),blood_group.get(),ph_no.get(),age.get()))
+    con.commit()
+
+#####CODE FOR PASSWORD MATCHING#####
+
+def func11(event):
+    cur.execute("select password from login where ldid=%s",(id.get(),))
+    text = cur.fetchone()
+    print(text)
+    print(password.get())
+    con.commit()
+    if text[0] != password.get():
+        lab = Label(f2, text="password wrong").grid(row=4)
+    else:
+        w6 = Tk()
+        f6 = Frame(w6)
+
+
+        ####COUNT WILL BE INCREMENTED WHEN DONOR DONATES#####
+
+        def count_plus():
+             sq1="update donor set count=count+1 where did = %s"
+             val1=(id.get(),)
+             cur.execute(sq1,val1)
+             con.commit()
+
+
+             #####INCREMENT THE QUANTITY OF THAT PARTICULAR BLOOD GROUP BY 300 WHEN DONOR DONATES#####
+
+
+             var6 = "update blood set quant = quant + 300 where bldgrp = (select bloodgrp from donor where did = %s)"
+             cur.execute(var6,(id.get(),))
+             print("ok")
+
+
+ #####CODE FOR BILL CALCULATION FOR DONOR
+
+ #####WHEN COUNT>1 NO BILL 
+
+ #####WHEN COUNT=0 BILL WILL BE CALCULATED
+
+
+def count_minus():
+
+   cur.execute("select count from donor where did=%s",(id.get(),))
+   count1=cur.fetchone()
+   con.commit()
+   cur.execute("select bill(%s)", (quantity.get(),))
+   var = cur.fetchone()
+   con.commit()
+   if count1[0]>=1:
+       bill=0
+   else:
+
+       bill=var[0]
+
+
+#######CODE FOR INSERTING VALUES INTO RECEIVER TABLE
+
+def insert_rec():
+    cur.execute(sql_receiver,(name.get(),blood_group.get(),ph_no.get(),age.get(),quantity.get()))
+
+    con.commit()
+
+#######BILL FOR RECEIVER
+
+def getbill():
+        var3="select bill(%s)"
+        cur.execute(var3,(quantity.get(),))
+
+        billr=cur.fetchone()
